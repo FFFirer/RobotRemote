@@ -33,9 +33,10 @@ namespace RobotRemote
         }
 
         //批量获取好券
+        [WebMethod]
         public List<String> PostQuans(string Q, long page_no)
         {
-            List<string> Results = HandleCenter.PostQuans(q, page_no);
+            List<string> Results = HandleCenter.PostQuans(Q, page_no);
             return Results;
         }
 

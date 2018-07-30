@@ -97,7 +97,7 @@ namespace RobotRemote
 
         }
 
-        public static List<string> PostQuans(string q, int PageNo)
+        public static List<string> PostQuans(string q, long PageNo)
         {
             List<string> ReturnInfos = new List<string>();
             string serverUrl = "http://gw.api.taobao.com/router/rest";
@@ -137,15 +137,22 @@ namespace RobotRemote
                 SpreadReq.Requests_ = urls;
                 TbkSpreadGetResponse SpreadRsp = client.Execute(SpreadReq);
 
-                //拼接字符串：商品标题，图片，现价，折后价，下单链接，淘口令
-                string Detail_Info = string.Empty;
-                Detail_Info += string.Format("【{0}】\n", item.Title);
-                Detail_Info += string.Format("[CQ:image,file={0}]\n", item.PictUrl);
-                Detail_Info += string.Format("现价：{0}\n", item.ZkFinalPrice);
-                Detail_Info += string.Format("券后价：{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
-                Detail_Info += string.Format("【领券下单链接】{0}", SpreadRsp.Results.FirstOrDefault().ToString());
-                Detail_Info += string.Format("点击链接，再选择浏览器打开，或者复制这段描述{0}后到淘宝", TpwdRsp.Data.Model);
-                ReturnInfos.Add(Detail_Info);
+                if(SpreadRsp.Results.FirstOrDefault().ErrMsg == "OK")
+                {
+                    //拼接字符串：商品标题，图片，现价，折后价，下单链接，淘口令
+                    string Detail_Info = string.Empty;
+                    Detail_Info += string.Format("【{0}】\n", item.Title);
+                    Detail_Info += string.Format("[CQ:image,file={0}]\n", item.PictUrl);
+                    Detail_Info += string.Format("现价：{0}\n", item.ZkFinalPrice);
+                    Detail_Info += string.Format("券后价：{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
+                    Detail_Info += string.Format("【领券下单链接】{0}", SpreadRsp.Results.FirstOrDefault().Content);
+                    Detail_Info += string.Format("点击链接，再选择浏览器打开，或者复制这段描述{0}后到淘宝", TpwdRsp.Data.Model);
+                    ReturnInfos.Add(Detail_Info);
+                }
+                else
+                {
+                    continue;
+                }
             }
 
             return ReturnInfos;
