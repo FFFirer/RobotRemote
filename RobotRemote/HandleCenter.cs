@@ -97,9 +97,58 @@ namespace RobotRemote
 
         }
 
-        public static void PostQuans(int PageNo, int PageSize)
+        public static List<string> PostQuans(string q, int PageNo)
         {
+            List<string> ReturnInfos = new List<string>();
+            string serverUrl = "http://gw.api.taobao.com/router/rest";
+            string appkey = "24984684";
+            string secret = "b52c6c517d488ca9ccb95411daede241";
+            long adzonrid = 11262850424L;
+            ITopClient client = new DefaultTopClient(serverUrl, appkey, secret);
             //调用好券清单API，返回一个列表
+            TbkDgItemCouponGetRequest GetReq = new TbkDgItemCouponGetRequest();
+            GetReq.AdzoneId = adzonrid;
+            GetReq.Platform = 1;
+            GetReq.PageSize = 15L;
+            GetReq.Q = q;
+            GetReq.PageNo = PageNo;
+            TbkDgItemCouponGetResponse GetRsp = client.Execute(GetReq);     //获取一个结果列表
+            foreach(var item in GetRsp.Results)
+            {
+                //获取每个宝贝的现价、优惠价
+                TbkItemInfoGetRequest InfoReq = new TbkItemInfoGetRequest();
+                InfoReq.NumIids = item.NumIid.ToString();
+                InfoReq.Platform = 1;
+                TbkItemInfoGetResponse InfoRsp = client.Execute(InfoReq);
+
+                //生成淘口令
+                TbkTpwdCreateRequest TpwdReq = new TbkTpwdCreateRequest();
+                TpwdReq.Text = item.Title;
+                TpwdReq.Url = item.CouponClickUrl;
+                TpwdReq.Logo = item.PictUrl;
+                TbkTpwdCreateResponse TpwdRsp = client.Execute(TpwdReq);
+
+                //淘口令短链接
+                TbkSpreadGetRequest SpreadReq = new TbkSpreadGetRequest();
+                List<TbkSpreadGetRequest.TbkSpreadRequestDomain> urls = new List<TbkSpreadGetRequest.TbkSpreadRequestDomain>();
+                TbkSpreadGetRequest.TbkSpreadRequestDomain native_url = new TbkSpreadGetRequest.TbkSpreadRequestDomain();
+                urls.Add(native_url);
+                native_url.Url = item.CouponClickUrl;
+                SpreadReq.Requests_ = urls;
+                TbkSpreadGetResponse SpreadRsp = client.Execute(SpreadReq);
+
+                //拼接字符串：商品标题，图片，现价，折后价，下单链接，淘口令
+                string Detail_Info = string.Empty;
+                Detail_Info += string.Format("【{0}】\n", item.Title);
+                Detail_Info += string.Format("[CQ:image,file={0}]\n", item.PictUrl);
+                Detail_Info += string.Format("现价：{0}\n", item.ZkFinalPrice);
+                Detail_Info += string.Format("券后价：{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
+                Detail_Info += string.Format("【领券下单链接】{0}", SpreadRsp.Results.FirstOrDefault().ToString());
+                Detail_Info += string.Format("点击链接，再选择浏览器打开，或者复制这段描述{0}后到淘宝", TpwdRsp.Data.Model);
+                ReturnInfos.Add(Detail_Info);
+            }
+
+            return ReturnInfos;
         }
 
         public static string ZHPrice(string price, string couponinfo)

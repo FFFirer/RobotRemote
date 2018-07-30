@@ -32,11 +32,12 @@ namespace RobotRemote
             return result;
         }
 
-        //定时 发布好券
-        //public string[] PostQuans()
-        //{
-
-        //}
+        //批量获取好券
+        public List<String> PostQuans(string Q, long page_no)
+        {
+            List<string> Results = HandleCenter.PostQuans(q, page_no);
+            return Results;
+        }
 
     }
 }
