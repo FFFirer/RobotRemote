@@ -143,8 +143,8 @@ namespace RobotRemote
                     string Detail_Info = string.Empty;
                     Detail_Info += string.Format("【{0}】\n", item.Title);
                     Detail_Info += string.Format("[CQ:image,file={0}]\n", item.PictUrl);
-                    Detail_Info += string.Format("现价：{0}\n", item.ZkFinalPrice);
-                    Detail_Info += string.Format("券后价：{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
+                    Detail_Info += string.Format("现价：￥{0}\n", item.ZkFinalPrice);
+                    Detail_Info += string.Format("券后价：￥{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
                     Detail_Info += string.Format("【领券下单链接】{0}", SpreadRsp.Results.FirstOrDefault().Content);
                     Detail_Info += string.Format("点击链接，再选择浏览器打开，或者复制这段描述{0}后到淘宝", TpwdRsp.Data.Model);
                     ReturnInfos.Add(Detail_Info);
