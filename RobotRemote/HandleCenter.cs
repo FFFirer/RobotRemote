@@ -142,6 +142,7 @@ namespace RobotRemote
                     //拼接字符串：商品标题，图片，现价，折后价，下单链接，淘口令
                     string Detail_Info = string.Empty;
                     Detail_Info += string.Format("【{0}】\n", item.Title);
+                    Detail_Info += string.Format("👉{0}\n", item.ItemDescription); 
                     Detail_Info += string.Format("[CQ:image,file={0}]\n", item.PictUrl);
                     Detail_Info += string.Format("现价：￥{0}\n", item.ZkFinalPrice);
                     Detail_Info += string.Format("券后价：￥{0}\n", ZHPrice(item.ZkFinalPrice, item.CouponInfo));
